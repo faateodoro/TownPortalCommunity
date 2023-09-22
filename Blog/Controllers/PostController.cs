@@ -1,8 +1,7 @@
-﻿using Blog.Context;
-using Blog.Entities;
+﻿using Blog.Entities;
 using Blog.Entities.Form;
+using Blog.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Controllers
 {
@@ -10,26 +9,25 @@ namespace Blog.Controllers
     [Route("[controller]")]
     public class PostController : ControllerBase
     {
-        private readonly BlogContext _context;
+        private readonly PostService _postService;
 
-        public PostController(BlogContext context)
+        public PostController(PostService postService)
         {
-            _context = context;
+            _postService = postService;
         }
 
         [HttpPost]
-        public IActionResult Create(PostForm form)
+        public async Task<IActionResult> Create(PostForm form)
         {
             var post = new Post(form);
-            _context.Add(post);
-            _context.SaveChanges();
+            await _postService.CreateAsync(post);
             return Ok(post);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var posts = await _context.Posts.ToListAsync<Post>();
+            var posts = await _postService.GetPostsAsync();
             if (posts == null)
             {
                 return NotFound();
@@ -40,7 +38,7 @@ namespace Blog.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(uint id)
         {
-            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+            var post = await _postService.GetPostAsync(id);
             if (post == null)
             {
                 return NotFound();
@@ -51,28 +49,22 @@ namespace Blog.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(uint id)
         {
-            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
-            if (post == null)
+            var hasPost = await _postService.DeleteAsync(id);
+            if (!hasPost)
             {
                 return NotFound();
             }
-            _context.Remove(post);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(uint id, PostForm form)
         {
-            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
-            if (post == null)
+            var hasPost = await _postService.UpdateAsync(id, form);
+            if (!hasPost)
             {
                 return NotFound();
             }
-
-            post.Update(form);
-            _context.Update(post);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

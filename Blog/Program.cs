@@ -1,9 +1,11 @@
 using Blog.Context;
+using Blog.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddTransient<PostService>();
 
 builder.Services.AddDbContext<BlogContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
