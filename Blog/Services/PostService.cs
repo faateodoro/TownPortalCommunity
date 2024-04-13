@@ -21,9 +21,14 @@ namespace Blog.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IList<Post>> GetPostsAsync()
+        public async Task<IList<Post>> GetAllPostsAsync()
         {
             return await _context.Posts.ToListAsync<Post>();
+        }
+
+        public async Task<IList<Post>> GetActivePostsAsync()
+        {
+            return await _context.Posts.Where(p => p.Active == true).ToListAsync<Post>();
         }
 
         public async Task<Post> GetPostAsync(uint id)

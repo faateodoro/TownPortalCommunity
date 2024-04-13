@@ -25,9 +25,21 @@ namespace Blog.Controllers
         }
 
         [HttpGet]
+        [Route("all")]
         public async Task<IActionResult> GetAll()
         {
-            var posts = await _postService.GetPostsAsync();
+            var posts = await _postService.GetAllPostsAsync();
+            if (posts == null)
+            {
+                return NotFound();
+            }
+            return Ok(posts);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetActives()
+        {
+            var posts = await _postService.GetActivePostsAsync();
             if (posts == null)
             {
                 return NotFound();
