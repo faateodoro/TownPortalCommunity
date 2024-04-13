@@ -38,7 +38,8 @@ namespace Blog.Services
             {
                 return false;
             }
-            _context.Remove(post);
+            post.Unactivate();
+            _context.Update(post);
             await _context.SaveChangesAsync();
 
             return true;
